@@ -1,8 +1,10 @@
 package main;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Cave {
+public class Cave implements Serializable {
+
     public Player player;
     private ArrayList<Monster> monsters;
 
@@ -11,32 +13,32 @@ public class Cave {
         this.monsters = new ArrayList<>();
     }
 
-        public void addMonster (Monster monster) {
+    public void addMonster(Monster monster) {
         monsters.add(monster);
+
     }
 
     public void listMonsters() {
         if (monsters.isEmpty()) {
             System.out.println("Luola on tyhjä.");
-        } else {
-            System.out.println("Luolan hirviöt: ");
-            for (int i = 0; i < monsters.size(); i++) {
-                monsters.get(i).printInfo(i + 1);
-            }
+            return;
+        }
+        for (int i = 0; i < monsters.size(); i++) {
+            monsters.get(i).printInfo(i+1);
         }
     }
 
-    public void printMonsterListOnly() {
-        for (int i = 0 ; i < monsters.size(); i++) {
-            monsters.get(i).printInfo(i + 1);
-        }
+    public int monsterCount() {
+        return monsters.size();
     }
 
-    public ArrayList<Monster> getMonsters() {
-        return monsters;
+    public Monster getMonster (int index) {
+        return monsters.get(index);
     }
-    
-    public void removeMonsters (int index) {
-        monsters.remove(index);
+
+    public void removeMonster(Monster i) {
+        monsters.remove(i);
     }
 }
+
+

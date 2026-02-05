@@ -1,16 +1,16 @@
 package main;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Scanner;
 
 public class App {
     public static void main( String[] args ) {
-        
+
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("Syötä pelaajan nimi: ");
@@ -22,6 +22,7 @@ public class App {
         boolean exit = false;
 
         while (!exit) {
+
             System.out.println("1) Lisää luolaan hirviö");
             System.out.println("2) Listaa hirviöt");
             System.out.println("3) Hyökkää hirviöön");
@@ -38,80 +39,77 @@ public class App {
                     case 1:
                         System.out.println("Anna hirviön tyyppi: ");
                         String type = scanner.nextLine();
-                        System.out.println("Anna hirviön elämän määrä numeroina: ");
-                        int health = Integer.parseInt(scanner.nextLine());
-                        Monster newMonster = new Monster (type, health);
+
+                        System.out.println("Anna hirviön elämän määrä numerona: ");
+                        String stringHealth = scanner.nextLine();
+                        int health = Integer.parseInt(stringHealth);
+                        
+                        Monster newMonster = new Monster(type, health);
                         cave.addMonster(newMonster);
                         break;
                     
                     case 2:
                         cave.listMonsters();
                         break;
-                    
+
                     case 3:
+                        if (cave.monsterCount() == 0) {
+                            System.out.println("Luola on tyhjä.");
+                            break;
+                        }
+                        System.out.println("Valitse hirviö, johon hyökätä: ");
                         cave.listMonsters();
-                        if (!cave.getMonsters().isEmpty()) {
-                            System.out.println("Valitse hirviö, johon hyökätä: ");
-                            cave.printMonsterListOnly();
-                            int index = Integer.parseInt(scanner.nextLine()) -1;
-                            if (index >= 0 && index < cave.getMonsters().size()) {
-                                Monster target = cave.getMonsters().get(index);
-                                boolean alive = cave.player.attack(target);
-                                if (!alive) {
-                                    cave.removeMonsters(index); 
-                                }
-                            }
+
+                        String stringIndex = scanner.nextLine();
+                        int index = Integer.parseInt(stringIndex);
+                        index = index -1;
+
+                        Monster target = cave.getMonster(index);
+                        boolean alive = cave.player.attack(target);
+
+                        if(!alive) {
+                            cave.removeMonster(target);
                         }
                         break;
-
+                    
                     case 4:
-                        System.out.println("Anna tiedoston nimi, johon peli tallentaa:");
+                        System.out.println("Anna tiedoston nimi, johon peli tallentaa: ");
                         String saveFile = scanner.nextLine();
-                        
+
                         try {
                             ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(saveFile));
-                            out.writeObject(cave);
-                            out.close();
-                        } catch (FileNotFoundException e) {
-                            e.printStackTrace();
+                        out.writeObject(cave);
+                        out.close();
+                        System.out.println("Peli tallennettiin tiedostoon " + saveFile);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
-                        System.out.println("Peli tallennettiin tiedostoon " + saveFile + ".");
                         break;
 
                     case 5:
-                        System.out.println("Anna tiedoston nimi, josta peli ladataan:");
+                        System.out.println("Anna tiedoston nimi, josta peli ladataan: ");
                         String loadFile = scanner.nextLine();
- 
-                        ObjectInputStream in;
                         try {
-                            in = new ObjectInputStream(new FileInputStream(loadFile));
-                            try {
-                                cave = (Cave) in.readObject();
-                            } catch (ClassNotFoundException e) {
-                                e.printStackTrace();
-                            }
-                        } catch (FileNotFoundException e) {
-
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
+                            ObjectInputStream in = new ObjectInputStream(new FileInputStream(loadFile));
+                            cave = (Cave) in.readObject();
+                            in.close();
+                            System.out.println("Peli ladattu tiedostosta" + loadFile + ". Tervetuloa takaisin " + cave.player.name + ".");
+                        } catch (Exception e) {
+                            System.out.println("Lataus epäonnistui.");
                         }
-
-                        System.out.println("Peli ladattu tiedostosta "+ loadFile + ". Tervetuloa takaisin, "+ name + ".");
                         break;
-
+                    
                     case 0:
-                        System.out.println("Peli päättyy. Kiitos pelaamisesta!");
                         exit = true;
+                        System.out.println("Peli päättyi. Kiitos pelaamisesta!");
                         break;
-
+                    
                     default:
-                        System.out.println("Virheellinen valinta");
-                        break;
+                        System.out.println("Virheellinen valinta.");
                 }
             }
-        }scanner.close();
+        
+        }
+        scanner.close();
     }
 }
